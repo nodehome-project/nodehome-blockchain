@@ -23,10 +23,9 @@ cd nodehome-blochain
 Query to blockchain network
 --------------------------------------------
 
-<pre>
-> curl --header "Content-Type: application/json" --request POST --data '{"chaincode":"ecchain","query_type":"query","func_args":["PID","10000"],"func_name":"version"}' http://127.0.0.1:8050/chaincode_query
+> curl --header "Content-Type: application/json" --request POST --data '{"chaincode":"ecchain","query_type":"query","func_args":["PID","10000"],"func_name":"version"}' http://127.0.0.1:8050/chaincode_query<br>
 > {"ec":0,"pid":"PID","value":{"ver":"0.3.8"},"ref":"OK"}
-</pre>
+
 
 Base wallets
 --------------------------------------------
