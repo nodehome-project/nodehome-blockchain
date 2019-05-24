@@ -99,6 +99,7 @@ services:
     command: bash gateway_pm2.sh 1
     volumes:
       - ./blockchain-gateway:/host/blockchain-gateway
+      - ./backend-runtime/backend-artifacts:/host/blockchain-gateway/backend-artifacts
     networks:
       - blockchain-net
 

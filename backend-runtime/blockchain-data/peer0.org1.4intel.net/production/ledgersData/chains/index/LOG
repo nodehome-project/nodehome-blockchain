@@ -1,16 +1,6 @@
-=============== Apr 22, 2019 (UTC) ===============
-06:34:43.186400 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-06:34:43.236461 db@open opening
-06:34:43.236859 version@stat F·[] S·0B[] Sc·[]
-06:34:43.270145 db@janitor F·2 G·0
-06:34:43.270176 db@open done T·33.688685ms
-=============== Apr 22, 2019 (UTC) ===============
-06:46:11.450994 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-06:46:11.451087 version@stat F·[] S·0B[] Sc·[]
-06:46:11.451094 db@open opening
-06:46:11.451130 journal@recovery F·1
-06:46:11.451882 journal@recovery recovering @1
-06:46:11.495523 memdb@flush created L0@2 N·86 S·2KiB "nhc..a\x00\x00,v9":"nhc..478,v35"
-06:46:11.496904 version@stat F·[1] S·2KiB[2KiB] Sc·[0.25]
-06:46:11.602275 db@janitor F·3 G·0
-06:46:11.602301 db@open done T·151.200393ms
+=============== May 24, 2019 (UTC) ===============
+05:29:33.337412 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+05:29:33.387228 db@open opening
+05:29:33.387927 version@stat F·[] S·0B[] Sc·[]
+05:29:33.421027 db@janitor F·2 G·0
+05:29:33.421076 db@open done T·33.814701ms
