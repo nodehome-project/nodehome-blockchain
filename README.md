@@ -31,20 +31,20 @@ Nodehome-Chain 테스트
 --------------------------------------------
 
 <pre>
-nodehome-blockchain                 Nodehome-Chain 폴더
-├── README.md                    간략한 설명 파일
-├── backend-runtime              Nodehome-Chain 데이터 폴더
+nodehome-blockchain             Nodehome-Chain 폴더
+├── README.md                   간략한 설명 파일
+├── backend-runtime             Nodehome-Chain 데이터 폴더
 │   ├── backend-artifacts       Nodehome-Chain Peer 인증서, Genesis Block 파일 등의 폴더
 │   ├── blockchain-data         Nodehome-Chain 블록체인 데이터 폴더
 │   └── script                  Nodehome-Chain 스크립트 폴더
-├── blockchain-gateway           Nodehome-Chain NA 폴더
-├── check-blockchain.sh          Nodehome-Chain 테스트 스크립트
-├── docker-compose.yml           Docker-Compose 설정 파일
-├── nodehome-blockchain.sh       Nodehome-Chain 시작/종료 스크립트
-└── wallets                      시스템 지갑 폴더
-    ├── prik                     시스템 지갑 개인키 폴더
-    ├── pubk                     시스템 지갑 공용키 폴더
-    └── seed                     시스템 지갑 Mnemonics 폴더
+├── blockchain-gateway          Nodehome-Chain NA 폴더
+├── check-blockchain.sh         Nodehome-Chain 테스트 스크립트
+├── docker-compose.yml          Docker-Compose 설정 파일
+├── nodehome-blockchain.sh      Nodehome-Chain 시작/종료 스크립트
+└── wallets                     시스템 지갑 폴더
+    ├── prik                    시스템 지갑 개인키 폴더
+    ├── pubk                    시스템 지갑 공용키 폴더
+    └── seed                    시스템 지갑 Mnemonics 폴더
 </pre>
 
 시스템 지갑
