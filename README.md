@@ -30,6 +30,7 @@ Nodehome-Chain 테스트
 폴더 구조
 --------------------------------------------
 
+<pre>
 nodehome-blockchain                 Nodehome-Chain 폴더
 ├── README.md                    간략한 설명 파일
 ├── backend-runtime              Nodehome-Chain 데이터 폴더
@@ -44,12 +45,14 @@ nodehome-blockchain                 Nodehome-Chain 폴더
     ├── prik                     시스템 지갑 개인키 폴더
     ├── pubk                     시스템 지갑 공용키 폴더
     └── seed                     시스템 지갑 Mnemonics 폴더
+</pre>
 
 시스템 지갑
 --------------------------------------------
 * 시스템 지갑은 nodehome-blockchain/wallets 하위에 prik / pubk 폴더에 존재하며 각각의 파일에 대한 설명은 아래와 같습니다.
 * Devnet에 자동 발행된 코인을 사용하기 위해서는 'issueWallet.key' 계정으로 부터 코인을 인출해야 합니다.
 * Devnet에 신규 서비스 등록을 위해서는 'manService.key' 계정을 사용해서 서비스 등록을 할 수 있습니다.
+
 | 지갑 키 파일    | 설명                 |
 |-----------------|----------------------|
 | feeWallet.key   | 수수료 지갑          |
