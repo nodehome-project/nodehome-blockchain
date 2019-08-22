@@ -1,5 +1,5 @@
 #
-# Copyright 4intel All Rights Reserved
+# Copyright Goldblock All Rights Reserved
 #
 
 version: '2'
@@ -11,57 +11,59 @@ networks:
 
 services:
   orderer1:
-    image: hyperledger/fabric-orderer:amd64-1.4.0
-    container_name: orderer1.4intel.net
-    hostname: orderer1.4intel.net
+    image: ${docker_registry_url}hyperledger/fabric-orderer:${fabric_version}
+    container_name: orderer1.example.com
+    hostname: orderer1.example.com
     environment:
       - ORDERER_GENERAL_LOGLEVEL=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
-      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/genesis.block
+      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/channel-artifacts/genesis.block
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/orderer/msp
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=blockchain-net
-      - RESET_DATA=false
+      - RESET_DATA=${RESET_DATA_FLAG}
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
     command: /bin/bash /host/script/orderer.sh
     ports:
       - 7050:7050
     volumes:
-      - ./backend-runtime/script/:/host/script/
-      - ./backend-runtime/backend-artifacts/config-solo/:/etc/hyperledger/configtx
-      - ./backend-runtime/backend-artifacts/crypto-config/ordererOrganizations/4intel.net/orderers/orderer1.4intel.net/:/etc/hyperledger/orderer
-      - ./backend-runtime/blockchain-data/orderer1.4intel.net/production:/var/hyperledger/production
+      - ${backend_runtime_path}/script/:/host/script/
+      - ${backend_runtime_path}/backend-artifacts/channel-artifacts/:/etc/hyperledger/channel-artifacts
+      - ${backend_runtime_path}/backend-artifacts/crypto-config/ordererOrganizations/example.com/orderers/orderer1.example.com/:/etc/hyperledger/orderer
+      - ${backend_runtime_path}/blockchain-data/orderer1.example.com/production:/var/hyperledger/production
     networks:
       - blockchain-net
 
   peer0-org1:
-    container_name: peer0.org1.4intel.net
-    hostname: peer0.org1.4intel.net
-    image: hyperledger/fabric-peer:amd64-1.4.0
+    container_name: peer0.org1.example.com
+    hostname: peer0.org1.example.com
+    image: ${docker_registry_url}hyperledger/fabric-peer:${fabric_version}
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_PEER_ID=peer0.org1.4intel.net
+      - CORE_PEER_ID=peer0.org1.example.com
       - CORE_LOGGING_PEER=INFO
       - CORE_CHAINCODE_LOGGING_LEVEL=INFO
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/peer/msp
-      - CORE_PEER_ADDRESS=peer0.org1.4intel.net:7051
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org1.4intel.net:7052
+      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org1.example.com:7052
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=blockchain-net
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
-      - RESET_DATA=false
+      - RESET_DATA=${RESET_DATA_FLAG}
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     command: /bin/bash /host/script/peer.sh
     ports:
       - 7051:7051
+      - 7052:7052
       - 7053:7053
     volumes:
       - /var/run/:/host/var/run/
-      - ./backend-runtime/script/:/host/script/
-      - ./backend-runtime/backend-artifacts/crypto-config/peerOrganizations/org1.4intel.net/peers/peer0.org1.4intel.net:/etc/hyperledger/peer
-      - ./backend-runtime/blockchain-data/peer0.org1.4intel.net/production:/var/hyperledger/production
+      - ${backend_runtime_path}/script/:/host/script/
+      - ${backend_runtime_path}/backend-artifacts/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com:/etc/hyperledger/peer
+      - ${backend_runtime_path}/backend-artifacts/core-${fabric_version}.yaml:/etc/hyperledger/fabric/core.yaml
+      - ${backend_runtime_path}/blockchain-data/peer0.org1.example.com/production:/var/hyperledger/production
     depends_on:
       - orderer1
       - couchdb1
@@ -71,35 +73,36 @@ services:
   couchdb1:
     container_name: couchdb1
     hostname: couchdb1
-    image: hyperledger/fabric-couchdb:amd64-0.4.14
+    image: ${docker_registry_url}hyperledger/fabric-couchdb:${thirdparty_version}
     command: /bin/bash /host/script/couchdb.sh
     ports:
       - 5984
     volumes:
-      - ./backend-runtime/script/:/host/script/
-      - ./backend-runtime/blockchain-data/couchdb1/data:/opt/couchdb/data
+      - ${backend_runtime_path}/script/:/host/script/
+      - ${backend_runtime_path}/blockchain-data/couchdb1/data:/opt/couchdb/data
     environment:
       - DB_URL=http://localhost:5984/member_db
-      - RESET_DATA=false
+      - RESET_DATA=${RESET_DATA_FLAG}
     networks:
       - blockchain-net
 
   gateway:
-    image: nodehome/nodejs-gateway:latest
+    image: ${docker_registry_url}nodehome/nodejs-gateway:latest
     container_name: gateway
     hostname: gateway
     environment:
-      - CORE_PEER_ADDRESS=peer0.org1.4intel.net:7051
+      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
-      - CORE_PEER_MSPCONFIGPATH=/host/crypto-config/peerOrganizations/org1.4intel.net/users/Admin@org1.4intel.net/msp
+      - CORE_PEER_MSPCONFIGPATH=/host/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
       - PORT=8050
     ports:
       - 8050:8050
     working_dir: /host/blockchain-gateway
     command: bash gateway_pm2.sh 1
     volumes:
-      - ./blockchain-gateway:/host/blockchain-gateway
-      - ./backend-runtime/backend-artifacts:/host/blockchain-gateway/backend-artifacts
+      - ${gateway_path}:/host/blockchain-gateway
+      - ${backend_runtime_path}/backend-artifacts:/host/blockchain-gateway/backend-artifacts
     networks:
       - blockchain-net
+
 

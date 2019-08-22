@@ -1,11 +1,14 @@
 'use strict';
 /*
-* Copyright goldblock Corp All Rights Reserved
+* Copyright ABC CO. All Rights Reserved
 */
 
+var cmd=require('node-cmd');
 var hfc = require('fabric-client');
 var path = require('path');
 var util = require('util');
+var fs = require('fs');
+
 var sprintf = require("sprintf-js").sprintf
 var config = require('../config/config');
 var nautil = require('./nautil');
@@ -39,11 +42,18 @@ var queryChaincodePeers = function(chaincode_name, func_name, func_args, peer_nu
 
 function query_chaincode(chaincode_name, func_name, func_args, peer_num, fnCallback) {
 
+	var crypto_suite=null;
+	var peer = null;
 	var client = new hfc();
 
 	// setup the fabric network
 	var channel = client.newChannel(config.channel_id);
-	var peer = client.newPeer(config.peers[peer_num].peer_url);
+	if(config.tls == true){
+		const data = fs.readFileSync(path.join(__dirname, config.peers[peer_num].tls_cacerts));
+		peer = client.newPeer(config.peers[peer_num].peer_url,{'pem': Buffer.from(data).toString()});
+	} else {
+		peer = client.newPeer(config.peers[peer_num].peer_url);
+	}
 	channel.addPeer(peer);
 
 	//
@@ -57,7 +67,7 @@ function query_chaincode(chaincode_name, func_name, func_args, peer_num, fnCallb
 	}).then((state_store) => {
 		// assign the store to the fabric client
 		client.setStateStore(state_store);
-		var crypto_suite = hfc.newCryptoSuite();
+		crypto_suite = hfc.newCryptoSuite();
 		// use the same location for the state store (where the users' certificate are kept)
 		// and the crypto store (where the users' keys are kept)
 		var crypto_store = hfc.newCryptoKeyStore({path: store_path});
@@ -67,12 +77,18 @@ function query_chaincode(chaincode_name, func_name, func_args, peer_num, fnCallb
 		// get the enrolled user from persistence, this user will sign all requests
 		return client.getUserContext(config.peers[peer_num].admin_id, true);
 	}).then((user_from_store) => {
-		if (user_from_store && user_from_store.isEnrolled()) {
+		if (user_from_store == null) {
+			var arr = config.peers[peer_num].peer_name.split('.')
+			return nautil.getOrgAdmin(client, arr[1].substring(3))
+			.then((peer_admin)=>{
+				return channel.queryInfo(0);
+			});
+		} else if (user_from_store && user_from_store.isEnrolled()) {
 			console.log('Successfully loaded user1 from persistence');
+			return channel.queryInfo(0);
 		} else {
 			throw new Error('Failed to get user1.... run registerUser.js');
 		}
-		return channel.queryInfo(0);
 	}).then((blockchainInfo) => {
 		var strBlockNum = sprintf("%d",blockchainInfo['height']['low']-1);
 		var strPeerNum = sprintf("%d",peer_num);

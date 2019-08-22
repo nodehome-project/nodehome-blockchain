@@ -1,14 +1,16 @@
 'use strict';
 /*
-* Copyright goldblock Corp All Rights Reserved
+* Copyright ABC CO. All Rights Reserved
 */
 
+var cmd=require('node-cmd');
 var hfc = require('fabric-client');
 var path = require('path');
 var util = require('util');
 var sprintf = require("sprintf-js").sprintf
 var config = require('../config/config');
 var nautil = require('./nautil');
+var fs = require('fs');
 
 module.exports = function(chaincode_name, func_name, peer_num, func_args, fnCallback) {
 	var peer_idx=0
@@ -37,17 +39,106 @@ var invokeChaincodePeers = function(chaincode_name, func_name, func_args, peer_n
 	});
 }
 
+var invoke_chaincode_cli = function(chaincode_name, func_name, func_args, peer_num, fnCallback){
+	func_args.unshift(func_name);
+	var strCmd = sprintf("docker ps --format 'table {{.Names}}' | grep 'cli%02d'", peer_num+1);
+	cmd.get(strCmd, function(err, data, stderr){
+		var strContainerName = "";
+		if (data != null && data != undefined){
+			strContainerName = data.trim();
+		}
+		if (strContainerName.length <= 0) {
+			var strRet = '{"ec":-2,"ref":"Cannot find cli container."}'
+			fnCallback(strRet);
+			return;
+		}
+		var strInvoke = util.format("docker exec %s peer chaincode invoke -n %s -C %s -c '{\"Args\":%s}'", strContainerName, chaincode_name, config.channel_id, JSON.stringify(func_args));
+		cmd.get(strInvoke, function(err, data, stderr){
+			var strRet="";
+			var strJson;
+			var nLine, nPos1, nPos2;
+
+			if (err != null){
+				strRet = util.format('{"ec":-2,"ref":"%s"}', nautil.escape(err.toString()));
+			}
+			else if(data != null && data.length > 0) {
+				var aryText = data.split('\n');
+				for (nLine = 0; nLine < aryText.length; nLine++){
+					var strLine = aryText[nLine];
+					nPos1 = strLine.indexOf('Query Result:');
+					if (nPos1 != -1){
+						nPos1 = strLine.indexOf('{', nPos1+13);
+						if (nPos1 != -1) {
+							nPos2 = strLine.lastIndexOf('}');
+							strRet = strLine.substring(nPos1, nPos2+1);
+							strRet = strRet.replace(/\\\"/g,'\"');
+							break;
+						}
+					}
+				}
+			}
+			else if (stderr != null) {
+				var aryText = stderr.split('\n');
+				for (nLine = 0; nLine < aryText.length; nLine++){
+					var strLine = aryText[nLine];
+					strLine = strLine.replace(/\\\"/g,'\"');
+					nPos1 = strLine.indexOf('payload:');
+					if (nPos1 != -1){
+						nPos1 = strLine.indexOf('{', nPos1+8);
+						if (nPos1 != -1) {
+							nPos2 = strLine.lastIndexOf('}');
+							do {
+								strJson = strLine.substring(nPos1, nPos2+1);
+								try {
+									JSON.parse(strJson);
+									break;
+								}
+								catch(e) {
+									nPos2 = strLine.lastIndexOf('}', nPos2-1);
+								}
+							} while(nPos2 > nPos1);
+							if (nPos2 >= 0) {
+								strRet = strLine.substring(nPos1, nPos2+1);
+							}
+							else {
+								strRet = strLine.substring(nPos1, strLine.length);
+							}
+							break;
+						}
+					}
+				}
+			}
+			if (strRet.length <= 0){
+				strRet = '{"ec":-2,"ref":"Unknown Error"}'
+			}
+			fnCallback(strRet);
+		});	
+	});	
+}
+
 function invoke_chaincode(chaincode_name, func_name, func_args, peer_num, fnCallback) {
 
 	var invoke_result = "";
 	var client = new hfc();
+	var peer = null;
+	var orderer = null;
 
 	// setup the fabric network
 	var channel = client.newChannel(config.channel_id);
-	var peer = client.newPeer(config.peers[peer_num].peer_url);
+	if(config.tls == true){
+		const data = fs.readFileSync(path.join(__dirname, config.peers[peer_num].tls_cacerts));
+		peer = client.newPeer(config.peers[peer_num].peer_url, { 'pem': Buffer.from(data).toString() });
+	} else {
+		peer = client.newPeer(config.peers[peer_num].peer_url);
+	}
 	channel.addPeer(peer);
-	var order = client.newOrderer(config.orderers[0].orderer_url)
-	channel.addOrderer(order);
+	if(config.tls == true){
+		const data = fs.readFileSync(path.join(__dirname, config.orderers[0].tls_cacerts));
+		orderer = client.newOrderer(config.orderers[0].orderer_url, { 'pem': Buffer.from(data).toString() });
+	} else {
+		orderer = client.newOrderer(config.orderers[0].orderer_url);	
+	}
+	channel.addOrderer(orderer);
 
 	//
 	var store_path = path.join(__dirname, config.wallet_path);
@@ -69,12 +160,18 @@ function invoke_chaincode(chaincode_name, func_name, func_args, peer_num, fnCall
 		// get the enrolled user from persistence, this user will sign all requests
 		return client.getUserContext(config.peers[peer_num].admin_id, true);
 	}).then((user_from_store) => {
-		if (user_from_store && user_from_store.isEnrolled()) {
+		if (user_from_store == null) {
+			var arr = config.peers[peer_num].peer_name.split('.')
+			return nautil.getOrgAdmin(client, arr[1].substring(3))
+			.then((peer_admin)=>{
+				return channel.queryInfo(0);
+			});
+		} else if (user_from_store && user_from_store.isEnrolled()) {
 			console.log('Successfully loaded user1 from persistence');
+			return channel.queryInfo(0);
 		} else {
 			throw new Error('Failed to get user1.... run registerUser.js');
 		}
-		return channel.queryInfo(0);
 	}).then((blockchainInfo) => {
 		var strBlockNum = sprintf("%d",blockchainInfo['height']['low']-1);
 		var strPeerNum = sprintf("%d",peer_num);

@@ -1,0 +1,5 @@
+//=============================
+ // NODEHOME SEED FILE
+ //=============================
+ mnemonic:venue pink tape bind suggest adapt shrimp betray soup cloud roast familynet
+ //=============================

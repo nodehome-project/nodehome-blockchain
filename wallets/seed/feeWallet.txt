@@ -1,0 +1,5 @@
+//=============================
+ // NODEHOME SEED FILE
+ //=============================
+ mnemonic:model wink bike general indoor pave bone correct hotel slab churn soundnet
+ //=============================

@@ -2,6 +2,18 @@
 #
 # Copyright goldblock All Rights Reserved
 
+script_path_rel=$(dirname "$BASH_SOURCE")
+script_path=`readlink -e -n ${script_path_rel}`
+
+source ${script_path}/.config
+
+export RESET_DATA_FLAG=false
+export fabric_version=amd64-1.4.0
+export thirdparty_version=amd64-0.4.14
+export docker_registry_url=
+export backend_runtime_path=${script_path}/backend-runtime
+export gateway_path=${script_path}/blockchain-gateway
+
 function CheckNetwork() {
   set +e
   DOCKER_NETWORK_IDS=$(docker network ls | grep 'blockchain-net' | awk '{print $2}')

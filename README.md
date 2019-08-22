@@ -1,10 +1,10 @@
-Prerequisites
+필요 소프트웨어
 --------------------------------------------
-* Ubuntu version 16.04 64bit or greater
-* Docker version 17.06.2-ce or greater
-* Docker-compose version 1.14.0 or greater
+* Ubuntu version 16.04 64bit 또는 상위버전
+* Docker version 17.06.2-ce 또는 상위버전
+* Docker-compose version 1.14.0 
 
-Running local blockchain network
+Nodehome-Chain 시작
 --------------------------------------------
 
 <pre>
@@ -12,7 +12,7 @@ cd nodehome-blochain
 ./nodehome-blockchain.sh start
 </pre>
 
-Stopping local blockchain network
+Nodehome-Chain 중지
 --------------------------------------------
 
 <pre>
@@ -20,25 +20,45 @@ cd nodehome-blochain
 ./nodehome-blockchain.sh stop
 </pre>
 
-Query to blockchain network
+Nodehome-Chain 테스트
 --------------------------------------------
 
 > curl --header "Content-Type: application/json" --request POST --data '{"chaincode":"ecchain","query_type":"query","func_args":["PID","10000"],"func_name":"version"}' http://127.0.0.1:8050/chaincode_query<br>
 > {"ec":0,"pid":"PID","value":{"ver":"0.3.8"},"ref":"OK"}
 
 
-Base wallets
+폴더 구조
 --------------------------------------------
 
-* Coin Wallet
-  * Private key : ZypE7BH4rhZjWYKdhQVAs8A7eF6RcMAyE58J6UbSbvxCPF9Ew5yo
-  * Mnemonic key : manual draft immune tooth captain change tape snap tourist super wheat kid
-  * Public key : ZqowmmTX8XPP1RqeHBQGxJ6oTXC1T5q3TntPB6Tjw91dU9FBLcKF
-* Manager 300 Keys
-  * Private key : Zs2Dg54Y8TGt9QBPCDLTERmXYfKW2HePktB3rxb4bRNWid8sXFXA
-  * Mnemonic key : season shift bag ethics deal employ clip fall frown anxiety praise model 
-  * Public key : ZqpimDv3RAk1Gm51g8AZkqaxBJqR4HnRvBwQtjWCR2ZC3TZKmo1Q
-* Fee Wallet
-  * Private key : ZrykPgYtkDEWQpBZAD7bcFC8Tez4XF7SduhgxcUxABypKC5HYmMr
-  * Mnemonic key : thing armor wing thing trick famous index whip barrel region broken first 
-  * Public key : ZqrK48fj4LcQiwDR3rkRaHdL1W6xgBk6knZzExumNU5E3zbhxQpp
+nodehome-blockchain                 Nodehome-Chain 폴더
+├── README.md                    간략한 설명 파일
+├── backend-runtime              Nodehome-Chain 데이터 폴더
+│   ├── backend-artifacts       Nodehome-Chain Peer 인증서, Genesis Block 파일 등의 폴더
+│   ├── blockchain-data         Nodehome-Chain 블록체인 데이터 폴더
+│   └── script                  Nodehome-Chain 스크립트 폴더
+├── blockchain-gateway           Nodehome-Chain NA 폴더
+├── check-blockchain.sh          Nodehome-Chain 테스트 스크립트
+├── docker-compose.yml           Docker-Compose 설정 파일
+├── nodehome-blockchain.sh       Nodehome-Chain 시작/종료 스크립트
+└── wallets                      시스템 지갑 폴더
+    ├── prik                     시스템 지갑 개인키 폴더
+    ├── pubk                     시스템 지갑 공용키 폴더
+    └── seed                     시스템 지갑 Mnemonics 폴더
+
+시스템 지갑
+--------------------------------------------
+* 시스템 지갑은 nodehome-blockchain/wallets 하위에 prik / pubk 폴더에 존재하며 각각의 파일에 대한 설명은 아래와 같습니다.
+* Devnet에 자동 발행된 코인을 사용하기 위해서는 'issueWallet.key' 계정으로 부터 코인을 인출해야 합니다.
+* Devnet에 신규 서비스 등록을 위해서는 'manService.key' 계정을 사용해서 서비스 등록을 할 수 있습니다.
+| 지갑 키 파일    | 설명                 |
+|-----------------|----------------------|
+| feeWallet.key   | 수수료 지갑          |
+| issueWallet.key | 코인 발행 지갑       |
+| man100.key      | 100 레벨 관리자 지갑 |
+| man200.key      | 200 레벨 관리자 지갑 |
+| man300.key      | 300 레벨 관리자 지갑 |
+| manService.key  | 서비스 관리자 지갑   |
+| pnl1.key        | 패널 멤버 1 지갑     |
+| pnl2.key        | 패널 멤버 2 지갑     |
+| pnl3.key        | 패널 멤버 3 지갑     |
+| root.key        | root 관리자 지갑     |

@@ -1,0 +1,5 @@
+//=============================
+ // NODEHOME SEED FILE
+ //=============================
+ mnemonic:hawk dirt naive next fit debate mango jeans bullet inquiry source helpnet
+ //=============================

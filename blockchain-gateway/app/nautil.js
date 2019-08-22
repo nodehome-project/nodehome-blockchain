@@ -3,6 +3,12 @@
 /*
 * Copyright 4intel Corp All Rights Reserved
 */
+var fs = require('fs-extra');
+var hfc = require('fabric-client');
+var path = require('path');
+var util = require('util');
+var config = require('../config/config');
+
 var exports = module.exports = {};
 
 exports.escape = function escape (str) {
@@ -48,4 +54,31 @@ exports.toUTF8Array = function toUTF8Array(str) {
         }
     }
     return utf8;
+}
+
+exports.getOrgAdmin = function(client, orgNum) {
+	var keyPath = path.join(__dirname, util.format('../backend-artifacts/crypto-config/peerOrganizations/org%s.%s/users/Admin@org%s.%s/msp/keystore', orgNum, config.domain, orgNum, config.domain));
+	var keyPEM = Buffer.from(readAllFiles(keyPath)[0]).toString();
+	var certPath = path.join(__dirname, util.format('../backend-artifacts/crypto-config/peerOrganizations/org%s.%s/users/Admin@org%s.%s/msp/signcerts', orgNum, config.domain, orgNum, config.domain));
+	var certPEM = readAllFiles(certPath)[0];
+
+	return Promise.resolve(client.createUser({
+		username: 'org'+orgNum+'Admin',
+		mspid: 'Org'+orgNum+'MSP',
+		cryptoContent: {
+			privateKeyPEM: keyPEM.toString(),
+			signedCertPEM: certPEM.toString()
+		}
+	}));
+}
+
+function readAllFiles(dir) {
+	var files = fs.readdirSync(dir);
+	var certs = [];
+	files.forEach((file_name) => {
+		let file_path = path.join(dir,file_name);
+		let data = fs.readFileSync(file_path);
+		certs.push(data);
+	});
+	return certs;
 }

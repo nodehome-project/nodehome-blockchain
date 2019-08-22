@@ -1,0 +1,5 @@
+//=============================
+ // NODEHOME SEED FILE
+ //=============================
+ mnemonic:top dash despair stomach valid crazy crack faint outdoor unfair age mailnet
+ //=============================

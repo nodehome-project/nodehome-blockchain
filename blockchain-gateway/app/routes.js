@@ -5,6 +5,9 @@ var query_cp = require('./query.js');
 var util = require('util');
 
 module.exports = function(app) {
+	// =====================================
+	// Coinpool Query ==================
+	// =====================================
 	app.post('/chaincode_query', function(req, res) {
 		var req_time = Date.now();
 		var chaincode_name='ecchain'
@@ -15,6 +18,11 @@ module.exports = function(app) {
 		if (req.body.query_type == "query"){
 			try {
 				query_cp(chaincode_name, req.body.func_name, req.body.npid, req.body.func_args, function(query_res){
+					var json_res = JSON.parse(query_res);
+					json_res.na_startTime = req_time;
+					json_res.na_endTime = Date.now();
+					json_res.na_elapsedTime = Date.now() - req_time;
+					query_res = JSON.stringify(json_res)
 					console.log("response : ", query_res)
 					res.end(query_res);
 				});
@@ -26,8 +34,13 @@ module.exports = function(app) {
 		else{
 			try {
 				invoke_cp(chaincode_name, req.body.func_name, req.body.npid, req.body.func_args, function(query_res){
-				console.log("response : ", query_res)
-				res.end(query_res);
+					var json_res = JSON.parse(query_res);
+					json_res.na_startTime = req_time;
+					json_res.na_endTime = Date.now();
+					json_res.na_elapsedTime = Date.now() - req_time;
+					query_res = JSON.stringify(json_res)
+					console.log("response : ", query_res)
+					res.end(query_res);
 				});
 			}
 			catch(err) {

@@ -1,0 +1,5 @@
+//=============================
+ // NODEHOME SEED FILE
+ //=============================
+ mnemonic:almost primary rookie result fee main calm neither find damp vacuum forcenet
+ //=============================

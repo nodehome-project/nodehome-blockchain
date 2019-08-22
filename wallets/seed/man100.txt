@@ -1,0 +1,5 @@
+//=============================
+ // NODEHOME SEED FILE
+ //=============================
+ mnemonic:lemon violin target tennis whale buzz reveal fancy afford fly trip sailnet
+ //=============================

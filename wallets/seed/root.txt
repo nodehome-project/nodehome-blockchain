@@ -1,0 +1,5 @@
+//=============================
+ // NODEHOME SEED FILE
+ //=============================
+ mnemonic:include scissors powder easy ketchup return crumble task joy engine secret worknet
+ //=============================
