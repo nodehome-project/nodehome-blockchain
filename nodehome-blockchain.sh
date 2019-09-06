@@ -122,6 +122,21 @@ function testPeers() {
     done
 }
 
+function CheckNetwork() {
+    set +e
+    blockchain_network_name='blockchain-net'
+    network_driver='bridge'
+    if [ "${swarm}" == "true" ]; then
+        blockchain_network_name='blockchain-swarm-net'
+        network_driver='overlay'
+    fi
+    DOCKER_NETWORK_IDS=$(docker network ls --format="{{.Name}}" | grep ${blockchain_network_name})
+    if [ -z "$DOCKER_NETWORK_IDS" ]; then
+        docker network create --attachable --driver ${network_driver} ${blockchain_network_name}
+    fi
+    set -e
+}
+
 # 옵션 파싱
 parse_options "$@"
 
@@ -140,6 +155,7 @@ gateway_url="http://${gateway_ip}:8050/chaincode_query"
 
 if [[ "$action" == 'start' ]]; then
     show
+    CheckNetwork
     RunContainer
     sleep 5
     testPeers
